@@ -1,9 +1,10 @@
 import engine.data as data
 save = 0
-close_popup = 1
-quit = 2
+quit = 1
+class action:
+    ID = None
 
-class selection_popup:
+class selection_popup(action):
     def __init__(self,
         title = 'Please choose',
         option1 = 'Yes', action1 = None,
@@ -19,7 +20,7 @@ class selection_popup:
 
         self.ID = ID
 
-class loading_popup:
+class loading_popup(action):
     def __init__(self,
         title = 'Loading...',
         hint = 'Someone forgot to change the hint here lmao',
@@ -29,3 +30,6 @@ class loading_popup:
         self.hint = hint
         self.textcolor = data.box_text_color
         self.ID = ID
+
+class close_popup(action):
+    def __init__(self, ID): self.ID = ID
