@@ -7,3 +7,10 @@ icon = pygame.image.fromstring(b'999\xff999\xff:::\xff:::\xff:::\xff:::\xff:::\x
 middle_boxart = pygame.image.fromstring(b';9G\xffCBM\xffCBM\xffKJS\xffCBM\xffKJS\xffCBM\xffKJS\xffCBM\xffKJS\xffCBM\xffKJS\xffCBM\xffKJS\xffKJS\xffSSY\xffSSY\xffKJS\xffKJS\xffCBM\xffKJS\xffCBM\xffKJS\xffCBM\xffKJS\xffCBM\xffKJS\xffCBM\xffKJS\xffCBM\xffCBM\xff;9G\xff', (1, 32), 'RGBA')
 boxart_pallet = []
 boxart_color = (106, 190, 48)
+box_text_color = (255, 255, 255)
+is_init = False
+
+def init():
+    global is_init
+    pass
+    is_init = True

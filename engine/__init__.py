@@ -1,6 +1,7 @@
 """An Engine made entirely for slime facility"""
 import pygame as pg
 import engine.data as data
+import engine.game as game
 from engine.window import *
 from engine.eventhandler import *
 from engine.actionhandler import *
