@@ -2,6 +2,7 @@ import math
 import pygame as pg
 import engine.window as window
 import engine.data as data
+from engine.blend import blend
 import engine.eventhandler as eventhandler
 
 objects = []
@@ -11,6 +12,20 @@ def fontScaler(x, text, sides=10):
     scale = factor * scale * .026
     scale = (800 * .1 - len(text) * scale) / (800 + x + sides)
     return int(window.size[0] * scale)
+def lerp(point_a, point_b, length):
+    a = pg.math.Vector2(point_a)
+    b = pg.math.Vector2(point_b)
+    dir = b - a
+    try:
+        dir.normalize_ip()
+    except:
+        pass
+    dir *= length
+    dest = a + dir
+    return dest
+def dist(p1,p2):
+    return math.sqrt(((p1[0] - p2[0]) ** 2) + ((p1[1] - p2[1]) ** 2))
+
 
 def boxart(migrade,ex,ey, border_factor=1, curve_factor=1, color=data.boxart_color):
     i = 0
@@ -31,6 +46,8 @@ def boxart(migrade,ex,ey, border_factor=1, curve_factor=1, color=data.boxart_col
 class object:
     action = None
     halt = False
+    def render(self): pass
+
 class popup(object):
     def __init__(self, action):
         self.action = action
@@ -52,6 +69,18 @@ class popup(object):
         boxart(migrade, window.size[0] - migrade[0], window.size[1] - migrade[1])
         window.dis.blit(self.title, (window.size[0] * .5 - self.title.get_width() * .5, migrade[1]*2))
         self.content()
+class levelObject(object):
+    pos1 = (0, 0)
+    pos2 = (0, 0)
+    buildSize = (0,0)
+    def content(self): pass
+    def sizeRefresh(self): pass
+    def render(self):
+        if self.buildSize != window.size:
+            self.buildSize = tuple(window.size)
+            self.sizeRefresh()
+        self.content()
+
 
 class loading_popup(popup):
     rotation = 0
@@ -112,6 +141,32 @@ class selection_popup(popup):
         window.dis.blit(self.option1, (rect1.w - (rect1.w - rect1.x) * .5 - self.option1.get_width() * .5, rect1.h - (rect1.h - rect1.y) * .5 - self.option1.get_height() * .5))
         boxart((rect2.x, rect2.y), rect2.w, rect2.h, color=color2)
         window.dis.blit(self.option2, (rect2.w - (rect2.w - rect2.x) * .5 - self.option2.get_width() * .5, rect2.h - (rect2.h - rect2.y) * .5 - self.option2.get_height() * .5))
+class tutorial_arrow(levelObject):
+    def __init__(self, pos1, pos2, color1, color2, rotation):
+        self.pos1, self.pos2 = pos1, pos2,
+        self.arrow = pg.Surface((data.level_grid, data.level_grid),pg.SRCALPHA)
+        self.width = int(data.level_grid * .25)
+        self.color1 = color1
+        self.color2 = color2
+        pg.draw.polygon(self.arrow, self.color1, [(
+            data.level_grid * .9,
+            data.level_grid),(
+            data.level_grid * .1,
+            data.level_grid),(
+            data.level_grid * .5,
+            data.level_grid * .4)
+        ])
+        if rotation > 0:
+            self.arrow = pg.transform.rotate(self.arrow, rotation)
+    def content(self):
+        real_pos1 = (self.pos1[0] * data.level_grid + data.offset[0], self.pos1[1] * data.level_grid + data.offset[1])
+        real_pos2 = (self.pos2[0] * data.level_grid + data.offset[0], self.pos2[1] * data.level_grid + data.offset[1])
+        pg.draw.line(window.dis, blend(self.color1, self.color2, data.color_blending), real_pos1, (real_pos2[0] - data.level_grid * .5, real_pos2[1]), self.width)
+        window.dis.blit(self.arrow, (
+            real_pos2[0] - self.arrow.get_width() * .5,
+            real_pos2[1] - self.arrow.get_height() * .5
+        ))
+
 
 
 def remove(ID=None, recursive=False):

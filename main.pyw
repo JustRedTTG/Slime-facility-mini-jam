@@ -1,8 +1,10 @@
+import os
 import engine
 import engine.action, engine.object_renderer, engine.main_renderer
 import threading
 
 engine.create_window()
+if engine.data.debug: os.remove('save.dat')
 engine.game.load()
 
 threading.Thread(target=engine.data.init).start()
@@ -26,6 +28,8 @@ while True:
     engine.input_events()
 
     engine.handle_render()
+    engine.handle_level()
+
     engine.handle_actions()
 
     engine.flip()
