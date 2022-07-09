@@ -8,7 +8,7 @@ class level_data:
 
 class game_data:
     def __init__(self):
-        self.unlocked_levels = [0]
+        self.unlocked_level = 0
         self.complete_levels = []
 slot = game_data()
 def save():

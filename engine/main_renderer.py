@@ -10,6 +10,9 @@ current_screen = -1
 background_i = 0
 color_blending = 0
 color_blending_switch = True
+offset = (0, 0)
+player_pos = (0, 0)
+is_player_move = False
 
 def trans_rect(display:pg.Surface, color, rect):
     if type(rect) == tuple: surface = pg.Surface((rect[2], rect[3]))
@@ -39,8 +42,14 @@ level_size = window.size[0] * .1
 level_size_original = window.size[0] * .1
 enter_level = False
 buildSize = window.size
+current_level = data.level(0,0,0,0,0,0,0,0,0)
+def block_rect(pos):
+    pos = (pos[0]*data.level_grid, pos[1]*data.level_grid)
+    pos = (pos[0] + offset[0], pos[1] + offset[1])
+    return (int(pos[0] - data.level_grid * .5), int(pos[1] - data.level_grid * .5), data.level_grid, data.level_grid)
+
 def handle_render():
-    global current_screen, background_i, color_blending, color_blending_switch, level_size, level_size_original, buildSize, enter_level
+    global current_screen, background_i, color_blending, color_blending_switch, level_size, level_size_original, buildSize, enter_level, current_level, offset, player_pos, is_player_move
     if buildSize != window.size:
         buildSize = window.size
         level_size = window.size[0] * .1
@@ -75,9 +84,13 @@ def handle_render():
                 level_size += diff*data.level_size_blending_increment
                 level_size = min(level_size2, level_size)
             if eventhandler.mouse_left:
+                current_level = data.level_data[g.slot.unlocked_level]
                 enter_level = True
                 color_blending = 0
                 color_blending_switch = True
+                player_pos = current_level.start_pos
+                is_player_move = False
+
 
         else:
             level_size -= diff*data.level_size_blending_increment
@@ -108,7 +121,17 @@ def handle_render():
             trans_rect(window.dis, (0,0,0,50), level_rect2)
         pg.draw.rect(window.dis, blend(data.level_frame_unclaimed1, data.level_frame_unclaimed2), level_rect)
 
-    elif current_screen == 1: pass
+    elif current_screen == 1:
+        offset = (window.size[0] * .5 - player_pos[0] * data.level_grid,
+                  window.size[1] * .5 - player_pos[1] * data.level_grid)
+        window.dis.fill(blend(current_level.background1, current_level.background2))
+        i = 0
+        for block in current_level.blocks:
+            pg.draw.rect(window.dis, blend(data.level_block_color1, data.level_block_color2, i % 2 == 0), block_rect(block), data.level_grid_frame)
+            i += 1
+        trans_rect(window.dis, (*blend(data.player_color1, data.player_color2),200), block_rect(player_pos))
+        trans_rect(window.dis, (*blend(data.level_exit_color1, data.level_exit_color2),200), block_rect(current_level.ending_platform))
+
 
     for object in object_renderer.objects:
         object.render()
