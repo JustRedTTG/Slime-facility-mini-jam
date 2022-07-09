@@ -1,5 +1,6 @@
 import engine.eventhandler as eventhandler
 import engine.action as a
+import engine.data as data
 import engine.object_renderer as renderer
 import engine.game as slot_manager
 
@@ -15,7 +16,7 @@ def handle_actions():
         elif eventhandler.action_pool[i] == a.save:
             slot_manager.save()
         elif eventhandler.action_pool[i] == a.quit:
-            exit()
+            data.run = False
         elif type(eventhandler.action_pool[i]) == a.remove_object:
             renderer.remove(eventhandler.action_pool[i].target[0], eventhandler.action_pool[i].recursive)
         elif type(eventhandler.action_pool[i]) == a.remove_custom_object:
