@@ -81,7 +81,6 @@ class levelObject(object):
             self.sizeRefresh()
         self.content()
 
-
 class loading_popup(popup):
     rotation = 0
     speed = 2
@@ -161,11 +160,31 @@ class tutorial_arrow(levelObject):
     def content(self):
         real_pos1 = (self.pos1[0] * data.level_grid + data.offset[0], self.pos1[1] * data.level_grid + data.offset[1])
         real_pos2 = (self.pos2[0] * data.level_grid + data.offset[0], self.pos2[1] * data.level_grid + data.offset[1])
-        pg.draw.line(window.dis, blend(self.color1, self.color2, data.color_blending), real_pos1, (real_pos2[0] - data.level_grid * .5, real_pos2[1]), self.width)
+        real_pos3 = tuple(lerp(real_pos1, real_pos2, dist(real_pos1, real_pos2) - data.level_grid * .5))
+        pg.draw.line(window.dis, blend(self.color1, self.color2, data.color_blending), real_pos1, real_pos3, self.width)
         window.dis.blit(self.arrow, (
             real_pos2[0] - self.arrow.get_width() * .5,
             real_pos2[1] - self.arrow.get_height() * .5
         ))
+
+class open_arrow(tutorial_arrow):
+    def __init__(self, pos1, pos2, color1, color2, rotation, splat):
+        tutorial_arrow.__init__(self, pos1, pos2, color1, color2, rotation)
+        self.splat = splat
+    def content(self):
+        if not self.splat in data.splat_blocks: tutorial_arrow.content(self)
+class close_arrow(tutorial_arrow):
+    def __init__(self, pos1, pos2, color1, color2, rotation, splat):
+        tutorial_arrow.__init__(self, pos1, pos2, color1, color2, rotation)
+        self.splat = splat
+    def content(self):
+        if self.splat in data.splat_blocks: tutorial_arrow.content(self)
+class award_arrow(tutorial_arrow):
+    def __init__(self, pos1, pos2, color1, color2, rotation, award):
+        tutorial_arrow.__init__(self, pos1, pos2, color1, color2, rotation)
+        self.award = award
+    def content(self):
+        if self.award in data.awards_collected: tutorial_arrow.content(self)
 
 
 

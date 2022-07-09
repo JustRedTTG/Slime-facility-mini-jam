@@ -27,11 +27,15 @@ level_size = window.size[0] * .1
 level_size_original = window.size[0] * .1
 enter_level = False
 buildSize = window.size
-current_level = lvld.level(0,0,0,0,0,0,0,0,0,0)
+current_level = lvld.level()
 def block_rect(pos):
     pos = (pos[0]*data.level_grid, pos[1]*data.level_grid)
     pos = (pos[0] + offset[0], pos[1] + offset[1])
     return (int(pos[0] - data.level_grid * .5), int(pos[1] - data.level_grid * .5), data.level_grid, data.level_grid)
+def splat_rect(pos):
+    pos = (pos[0]*data.level_grid, pos[1]*data.level_grid)
+    pos = (pos[0] + offset[0], pos[1] + offset[1])
+    return (int(pos[0] - data.level_grid * .6), int(pos[1] - data.level_grid * .6), data.level_grid * 1.2, data.level_grid * 1.2)
 level_blind = 255
 level_color = (0,0,0)
 helt = False
@@ -87,6 +91,8 @@ def handle_render():
                 level_color = data.level_frame_unclaimed2
                 data.movement_target = 'player'
                 data.force = [0, 0]
+                data.splat_blocks.clear()
+                data.awards_collected.clear()
         elif not exit_level:
             level_size -= diff*data.level_size_blending_increment
             level_size = max(size, level_size)
@@ -132,11 +138,18 @@ def handle_render():
                   window.size[1] * .5 - player_pos[1] * data.level_grid)
         data.offset = offset
         window.dis.fill(blend(current_level.background1, current_level.background2))
-        i = 0
-        for block in current_level.blocks:
-            pg.draw.rect(window.dis, blend(data.level_block_color1, data.level_block_color2, i % 2 == 0), block_rect(block), data.level_grid_frame)
-            i += 1
-        trans_rect(window.dis, (*blend(data.level_exit_color1, data.level_exit_color2),200), block_rect(current_level.ending_platform))
+        for block in current_level.blocks1: pg.draw.rect(window.dis, blend(data.level_block_color1, data.level_block_color2), block_rect(block), data.level_grid_frame)
+        for block in current_level.blocks2: pg.draw.rect(window.dis, blend(data.level_block_color1, data.level_block_color2, True), block_rect(block), data.level_grid_frame)
+        for block in current_level.splat_blocks:
+            if not block[2] in data.splat_blocks: trans_rect(window.dis, (*blend(data.level_splat_block_color1, data.level_splat_block_color2, block[3]), 200), block_rect(block))
+            else: trans_rect(window.dis, (*blend(data.level_splat_block_color1, data.level_splat_block_color2, block[3]), 155), splat_rect(block))
+        for block in current_level.splat_interact_open:
+            if not block[2] in data.splat_blocks: pg.draw.rect(window.dis, blend(data.level_interacted_block_color1, data.level_interacted_block_color2, block[3]), block_rect(block), data.level_grid_frame)
+        for block in current_level.splat_interact_close:
+            if block[2] in data.splat_blocks: pg.draw.rect(window.dis, blend(data.level_interacted_block_color1, data.level_interacted_block_color2, block[3]), block_rect(block), data.level_grid_frame)
+        for award in current_level.awards:
+            if not award in data.awards_collected: pg.draw.ellipse(window.dis, blend(data.level_award_color1, data.level_award_color2), block_rect(award), data.level_grid_frame)
+        trans_rect(window.dis, (*blend(data.level_exit_color1, data.level_exit_color2), 200), block_rect(current_level.ending_platform))
 
         if current_screen == 2 and level_blind <= 255:
             trans_rect(window.dis, (*level_color, level_blind), (0, 0, *window.size))
@@ -162,8 +175,10 @@ def handle_render():
         trans_rect(window.dis, (*blend(data.player_color1, data.player_color2), 200), block_rect(player_pos))
 
     clock.tick(120)
-
-    if color_blending_switch:
+    if data.debug:
+        color_blending = 1
+        color_blending_switch = False
+    elif color_blending_switch:
         color_blending += data.color_blending_increment
         if color_blending >= 1:
             color_blending_switch = False

@@ -58,7 +58,7 @@ def input_events(halt=False):
         if data.movement_target == 'any':
             data.force[0] = input_handle_key(event, data.keys['left'], data.keys['right'], 0, -1, 1, data.force[0])
             data.force[1] = input_handle_key(event, data.keys['up'], data.keys['down'], 0, -1, 1, data.force[1])
-        elif data.movement_target == 'player' and data.force[0]+data.force[0] == 0:
+        elif data.movement_target == 'player' and data.force[0] == 0 and data.force[1] == 0:
             data.force[0] = input_handle_key(event, data.keys['left'], data.keys['right'], data.force[0], -1, 1, data.force[0])
             data.force[1] = input_handle_key(event, data.keys['up'], data.keys['down'], data.force[1], -1, 1, data.force[1])
         data.enter = input_handle_pressed(event, data.keys['space'], False, True, data.enter)
