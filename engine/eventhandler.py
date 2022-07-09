@@ -38,7 +38,10 @@ def window_events(enable_quitting=True):
                                                           'Quit' , [action.close_popup('eventhandler: save and quit'), action.save, action.quit],
                                                           'Cancel', [action.close_popup('eventhandler: save and quit')],
                                                           'eventhandler: save and quit'))
-        elif event.type == pg.WINDOWRESIZED: window_handler.size = window_handler.dis.get_size()
+        elif event.type == pg.WINDOWRESIZED:
+            window_handler.size = window_handler.dis.get_size()
+            if data.debug:
+                data.level_grid = window_handler.size[0]/20
 def input_handle_key(event:pg.event.Event, key1, key2, neutral, v1, v2, value):
     if event.type == pg.KEYDOWN and event.key == key1: return v1
     elif event.type == pg.KEYDOWN and event.key == key2: return v2

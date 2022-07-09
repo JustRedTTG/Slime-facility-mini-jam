@@ -20,6 +20,7 @@ def check_for_block(position): return position in mr.current_level.blocks1 or \
                                       position in splat_filter(mr.current_level.splat_interact_close, True)
 def check_for_splat(position): return position in splat_filter(mr.current_level.splat_blocks)
 def check_for_award(position): return position in mr.current_level.awards
+def check_for_stick(position): return position in mr.current_level.stick_blocks
 def player_grid(): return (int(mr.player_pos[0]+.5), int(mr.player_pos[1]+.5))
 def add_grid(g, a): return (g[0]+a[0], g[1]+a[1])
 def remove_grid(g, a): return (g[0]-a[0], g[1]-a[1])
@@ -29,16 +30,28 @@ def reset_movement():
     eventhandler.allow_force = True
 
 def move_right():
-    if not check_for_block(add_grid(player_grid(), (1, 0))): mr.player_pos = add_grid(mr.player_pos, (data.movement_speed, 0))
+    if check_for_stick(add_grid(player_grid(), (1, 0))):
+        mr.player_pos = add_grid(mr.player_pos, (1, 0))
+        reset_movement()
+    elif not check_for_block(add_grid(player_grid(), (1, 0))): mr.player_pos = add_grid(mr.player_pos, (data.movement_speed, 0))
     else: reset_movement()
 def move_left():
-    if not check_for_block(remove_grid(player_grid(), (1, 0))): mr.player_pos = remove_grid(mr.player_pos, (data.movement_speed, 0))
+    if check_for_stick(remove_grid(player_grid(), (1, 0))):
+        mr.player_pos = remove_grid(mr.player_pos, (1, 0))
+        reset_movement()
+    elif not check_for_block(remove_grid(player_grid(), (1, 0))): mr.player_pos = remove_grid(mr.player_pos, (data.movement_speed, 0))
     else: reset_movement()
 def move_up():
-    if not check_for_block(remove_grid(player_grid(), (0, 1))): mr.player_pos = remove_grid(mr.player_pos, (0, data.movement_speed))
+    if check_for_stick(remove_grid(player_grid(), (0, 1))):
+        mr.player_pos = remove_grid(mr.player_pos, (0, 1))
+        reset_movement()
+    elif not check_for_block(remove_grid(player_grid(), (0, 1))): mr.player_pos = remove_grid(mr.player_pos, (0, data.movement_speed))
     else: reset_movement()
 def move_down():
-    if not check_for_block(add_grid(player_grid(), (0, 1))): mr.player_pos = add_grid(mr.player_pos, (0, data.movement_speed))
+    if check_for_stick(add_grid(player_grid(), (0, 1))):
+        mr.player_pos = add_grid(mr.player_pos, (0, 1))
+        reset_movement()
+    elif not check_for_block(add_grid(player_grid(), (0, 1))): mr.player_pos = add_grid(mr.player_pos, (0, data.movement_speed))
     else: reset_movement()
 
 def debug_cube(pos, color): mr.trans_rect(mr.window.dis, color, mr.block_rect(pos))
@@ -58,6 +71,7 @@ def handle_level():
     # Interactions
     if check_for_splat(player_grid()): data.splat_blocks.add(get_splat_location(player_grid())[2])
     if check_for_award(player_grid()): data.awards_collected.add(player_grid())
+    if check_for_stick(player_grid()): data.stucks.add(player_grid())
 
     if mr.current_screen > 1: return
     # Events

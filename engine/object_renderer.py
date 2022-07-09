@@ -206,11 +206,19 @@ class award_arrow(tutorial_arrow):
         self.award = award
     def content(self):
         if self.award in data.awards_collected: tutorial_arrow.content(self)
+class stick_arrow(tutorial_arrow):
+    def __init__(self, pos1, pos2, color1, color2, rotation, stick, CID=None):
+        tutorial_arrow.__init__(self, pos1, pos2, color1, color2, rotation, CID)
+        self.stick = stick
+    def content(self):
+        if self.stick in data.stucks: tutorial_arrow.content(self)
 
 class award_eraser(eraser):
     def check(self): return self.activator in data.awards_collected
 class splat_eraser(eraser):
     def check(self): return self.activator in data.splat_blocks
+class stick_eraser(eraser):
+    def check(self): return self.activator in data.stucks
 
 def remove(ID=None, recursive=False):
     if not ID: return

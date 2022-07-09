@@ -140,6 +140,7 @@ def handle_render():
         window.dis.fill(blend(current_level.background1, current_level.background2))
         for block in current_level.blocks1: pg.draw.rect(window.dis, blend(data.level_block_color1, data.level_block_color2), block_rect(block), data.level_grid_frame)
         for block in current_level.blocks2: pg.draw.rect(window.dis, blend(data.level_block_color1, data.level_block_color2, True), block_rect(block), data.level_grid_frame)
+        for block in current_level.stick_blocks: trans_rect(window.dis, (*blend(data.level_stick_block_color1, data.level_stick_block_color2, True), 150), block_rect(block))
         for block in current_level.splat_blocks:
             if not block[2] in data.splat_blocks: trans_rect(window.dis, (*blend(data.level_splat_block_color1, data.level_splat_block_color2, block[3]), 200), block_rect(block))
             else: trans_rect(window.dis, (*blend(data.level_splat_block_color1, data.level_splat_block_color2, block[3]), 155), splat_rect(block))
@@ -175,7 +176,7 @@ def handle_render():
         trans_rect(window.dis, (*blend(data.player_color1, data.player_color2), 200), block_rect(player_pos))
 
     clock.tick(120)
-    if data.debug:
+    if data.debug and data.debug_level > 0:
         color_blending = 1
         color_blending_switch = False
     elif color_blending_switch:
