@@ -1,7 +1,10 @@
 import math
+import random
+
 import pygame as pg
 import engine.window as window
 import engine.data as data
+import engine.action as action
 from engine.blend import blend
 import engine.eventhandler as eventhandler
 
@@ -46,6 +49,8 @@ def boxart(migrade,ex,ey, border_factor=1, curve_factor=1, color=data.boxart_col
 class object:
     action = None
     halt = False
+    ID = None
+    CID = None
     def render(self): pass
 
 class popup(object):
@@ -80,6 +85,21 @@ class levelObject(object):
             self.buildSize = tuple(window.size)
             self.sizeRefresh()
         self.content()
+class eraser(object):
+    def __init__(self, activator, target, recursive=False, custom_id=True):
+        self.activator = activator
+        self.target = target
+        self.recursive = recursive
+        self.custom_id = custom_id
+        self.deathroll = False
+    def check(self): return False
+    def render(self):
+        if self.deathroll: eventhandler.add_action(action.remove_object(self.ID))
+        elif self.check():
+            if self.custom_id: eventhandler.add_action(action.remove_custom_object(self.target, self.recursive))
+            else: eventhandler.add_action(action.remove_object(self.target, self.recursive))
+            self.ID = str(random.randint(0,10000))
+            self.deathroll = True
 
 class loading_popup(popup):
     rotation = 0
@@ -140,8 +160,10 @@ class selection_popup(popup):
         window.dis.blit(self.option1, (rect1.w - (rect1.w - rect1.x) * .5 - self.option1.get_width() * .5, rect1.h - (rect1.h - rect1.y) * .5 - self.option1.get_height() * .5))
         boxart((rect2.x, rect2.y), rect2.w, rect2.h, color=color2)
         window.dis.blit(self.option2, (rect2.w - (rect2.w - rect2.x) * .5 - self.option2.get_width() * .5, rect2.h - (rect2.h - rect2.y) * .5 - self.option2.get_height() * .5))
+
 class tutorial_arrow(levelObject):
-    def __init__(self, pos1, pos2, color1, color2, rotation):
+    def __init__(self, pos1, pos2, color1, color2, rotation, CID=None):
+        self.CID = CID
         self.pos1, self.pos2 = pos1, pos2,
         self.arrow = pg.Surface((data.level_grid, data.level_grid),pg.SRCALPHA)
         self.width = int(data.level_grid * .25)
@@ -166,33 +188,43 @@ class tutorial_arrow(levelObject):
             real_pos2[0] - self.arrow.get_width() * .5,
             real_pos2[1] - self.arrow.get_height() * .5
         ))
-
 class open_arrow(tutorial_arrow):
-    def __init__(self, pos1, pos2, color1, color2, rotation, splat):
-        tutorial_arrow.__init__(self, pos1, pos2, color1, color2, rotation)
+    def __init__(self, pos1, pos2, color1, color2, rotation, splat, CID=None):
+        tutorial_arrow.__init__(self, pos1, pos2, color1, color2, rotation, CID)
         self.splat = splat
     def content(self):
         if not self.splat in data.splat_blocks: tutorial_arrow.content(self)
 class close_arrow(tutorial_arrow):
-    def __init__(self, pos1, pos2, color1, color2, rotation, splat):
-        tutorial_arrow.__init__(self, pos1, pos2, color1, color2, rotation)
+    def __init__(self, pos1, pos2, color1, color2, rotation, splat, CID=None):
+        tutorial_arrow.__init__(self, pos1, pos2, color1, color2, rotation, CID)
         self.splat = splat
     def content(self):
         if self.splat in data.splat_blocks: tutorial_arrow.content(self)
 class award_arrow(tutorial_arrow):
-    def __init__(self, pos1, pos2, color1, color2, rotation, award):
-        tutorial_arrow.__init__(self, pos1, pos2, color1, color2, rotation)
+    def __init__(self, pos1, pos2, color1, color2, rotation, award, CID=None):
+        tutorial_arrow.__init__(self, pos1, pos2, color1, color2, rotation, CID)
         self.award = award
     def content(self):
         if self.award in data.awards_collected: tutorial_arrow.content(self)
 
-
+class award_eraser(eraser):
+    def check(self): return self.activator in data.awards_collected
+class splat_eraser(eraser):
+    def check(self): return self.activator in data.splat_blocks
 
 def remove(ID=None, recursive=False):
     if not ID: return
     i = 0
     while i < len(objects):
         if objects[i].ID == ID:
+            del objects[i]
+            if not recursive: return
+        else: i += 1
+def remove_custom(ID=None, recursive=False):
+    if not ID: return
+    i = 0
+    while i < len(objects):
+        if objects[i].CID == ID:
             del objects[i]
             if not recursive: return
         else: i += 1

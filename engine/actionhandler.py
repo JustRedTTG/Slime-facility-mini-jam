@@ -16,6 +16,10 @@ def handle_actions():
             slot_manager.save()
         elif eventhandler.action_pool[i] == a.quit:
             exit()
+        elif type(eventhandler.action_pool[i]) == a.remove_object:
+            renderer.remove(eventhandler.action_pool[i].target[0], eventhandler.action_pool[i].recursive)
+        elif type(eventhandler.action_pool[i]) == a.remove_custom_object:
+            renderer.remove_custom(eventhandler.action_pool[i].target[0], eventhandler.action_pool[i].recursive)
         else:
-            print(eventhandler.action_pool[i])
+            print('ERROR: Cannot complete action of:',eventhandler.action_pool[i])
         del eventhandler.action_pool[0] # clear the action from the pool

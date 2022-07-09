@@ -33,3 +33,10 @@ class loading_popup(action):
 
 class close_popup(action):
     def __init__(self, ID): self.ID = ID
+
+class remove_object(action):
+    def __init__(self, target, recursive=False, ID=None):
+        self.target = target,
+        self.recursive = recursive
+        self.ID = ID
+class remove_custom_object(remove_object): pass
