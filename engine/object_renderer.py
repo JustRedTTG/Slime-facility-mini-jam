@@ -26,7 +26,12 @@ def boxart(migrade,ex,ey, border_factor=1, curve_factor=1, color=data.boxart_col
                  (*migrade, ex - migrade[0], ey - migrade[1]),
                  borderlength,int(size[0] * borderlength * 0.005 * curve_factor))
 
-class popup:
+# OBJECTS
+
+class object:
+    action = None
+    halt = False
+class popup(object):
     def __init__(self, action):
         self.action = action
         self.halt = True

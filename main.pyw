@@ -1,5 +1,5 @@
 import engine
-import engine.action, engine.object_renderer
+import engine.action, engine.object_renderer, engine.main_renderer
 import threading
 
 engine.create_window()
@@ -19,6 +19,7 @@ while not engine.data.is_init:
 
     engine.flip()
 engine.add_action(engine.action.close_popup('main: data.init'))
+engine.main_renderer.current_screen = 0
 while True:
     engine.prepare_events()
     engine.window_events()
