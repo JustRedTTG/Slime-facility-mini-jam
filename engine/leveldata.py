@@ -1,4 +1,4 @@
-# Level data updated on: 2022-07-10 01:05:37.839101
+# Level data updated on: 2022-07-11 06:04:35.971282
 import engine.object_renderer as objr
 
 class level:
@@ -66,7 +66,7 @@ level_data = [
         [],
         [],
         [(2,7),(12,7),],
-        [objr.tutorial_arrow((7,3),(7,6),(50,50,50),(70,70,70), 180, 'tut_arrow'),
+        [objr.tutorial_arrow((7,3),(7,6),(200,200,200),(220,240,220), 180, 'tut_arrow'),
          objr.stick_arrow((6,7),(3,7),(255,255,0),(255,255,200), 90, (7,7), 'award_left'),
          objr.award_arrow((3,7),(6,7),(0,255,255),(200,255,255), 270, (2,7), 'award_left_'),
          objr.stick_arrow((8,7),(11,7),(255,255,0),(255,255,200), 270, (7,7), 'award_right'),

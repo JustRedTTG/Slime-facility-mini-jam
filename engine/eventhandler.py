@@ -66,3 +66,4 @@ def input_events(halt=False):
             data.force[1] = input_handle_key(event, data.keys['up'], data.keys['down'], data.force[1], -1, 1, data.force[1])
         data.enter = input_handle_pressed(event, data.keys['space'], False, True, data.enter)
         data.enter = input_handle_pressed(event, data.keys['return'], False, True, data.enter)
+        data.escape = input_handle_pressed(event, data.keys['escape'], False, True, data.escape)

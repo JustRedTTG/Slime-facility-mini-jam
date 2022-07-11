@@ -3,8 +3,9 @@ import engine
 import engine.action, engine.object_renderer, engine.main_renderer
 import threading
 
+engine.data.pre_init()
 engine.create_window()
-if engine.data.debug: os.remove('save.dat')
+if engine.data.debug and os.path.exists('save.dat'): os.remove('save.dat')
 engine.game.load()
 
 threading.Thread(target=engine.data.init).start()

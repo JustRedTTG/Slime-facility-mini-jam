@@ -3,6 +3,7 @@ import engine.game as g
 import engine.eventhandler as eventhandler
 import engine.action as action
 import engine.data as data
+import engine.leveldata as lvld
 
 def splat_filter(splats, splatted=False):
     final = []
@@ -67,6 +68,9 @@ def handle_level():
     elif data.force[0] < 0: move_left()
     elif data.force[1] > 0: move_down()
     elif data.force[1] < 0: move_up()
+    if data.force[0]+data.force[1] != 0: data.movement_time += data.movement_time_speed
+    else: data.movement_time -= data.movement_time_speed
+    data.movement_time = max(0, min(1, data.movement_time))
 
     # Interactions
     if check_for_splat(player_grid()): data.splat_blocks.add(get_splat_location(player_grid())[2])
@@ -75,11 +79,13 @@ def handle_level():
 
     if mr.current_screen > 1: return
     # Events
-    if player_grid() == mr.current_level.ending_platform:
-        g.slot.complete_levels.append(g.slot.unlocked_level)
-        g.slot.unlocked_level += 1
+    if player_grid() == mr.current_level.ending_platform or data.escape:
+        if not data.escape:
+            g.slot.complete_levels.add(g.slot.unlocked_level)
+            g.slot.unlocked_level = min(g.slot.unlocked_level+1, lvld.level_count-1)
+            mr.current_screen = 2
+        else: mr.current_screen = 3
         eventhandler.add_action(action.save)
-        mr.current_screen = 2
         mr.level_size = mr.window.size[0]
         mr.level_size_original = mr.window.size[0] * .1
         mr.object_renderer.remove('level obj', True)

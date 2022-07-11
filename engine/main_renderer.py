@@ -40,8 +40,9 @@ level_blind = 255
 level_color = (0,0,0)
 helt = False
 exit_level, exit_level_number = False, g.slot.unlocked_level
+quit_level = False
 def handle_render():
-    global current_screen, background_i, color_blending, color_blending_switch, level_size, level_size_original, buildSize, enter_level, current_level, offset, player_pos, is_player_move, level_blind, level_color, exit_level, exit_level_number, halt
+    global current_screen, background_i, color_blending, color_blending_switch, level_size, level_size_original, buildSize, enter_level, current_level, offset, player_pos, is_player_move, level_blind, level_color, exit_level, exit_level_number, halt, quit_level
     if buildSize != window.size:
         buildSize = window.size
         level_size = window.size[0] * .1
@@ -101,6 +102,7 @@ def handle_render():
         level_rect2 = pg.Rect(center[0] - level_size * raw * .5, center[1] - level_size * raw * .5,
                       level_size * raw, level_size * raw)
         for i in range(1,len(g.slot.complete_levels)+1):
+            if i == len(g.slot.complete_levels) and len(g.slot.complete_levels) == lvld.level_count: break
             if level_size > level_size_original:
                 trans_rect(window.dis, (*blend(data.level_frame_claimed1, data.level_frame_claimed2, i % 2 == 0),255-255*rawclap),
                          (center[0] - size * .5 - (size+size * .5)*i, center[1] - size * .5,
@@ -124,16 +126,22 @@ def handle_render():
             pg.draw.rect(window.dis, blend(data.level_frame_unclaimed1, data.level_frame_unclaimed2), level_rect_original)
             claim_rect = (level_rect[0] - size - size * .5,level_rect[1],
                           level_rect[2],level_rect[3])
-            pg.draw.rect(window.dis, blend(data.level_frame_claimed1, data.level_frame_claimed2), claim_rect)
+            if quit_level or len(g.slot.complete_levels) == lvld.level_count:
+                pg.draw.rect(window.dis, blend(data.level_frame_claimed1, data.level_frame_claimed2), level_rect)
+            else:
+                pg.draw.rect(window.dis, blend(data.level_frame_claimed1, data.level_frame_claimed2), claim_rect)
+
             if level_size > level_size_original:
                 level_size -= data.level_exit_speed
             else:
                 exit_level = False
                 halt = False
+        elif len(g.slot.complete_levels) == lvld.level_count:
+            pg.draw.rect(window.dis, blend(data.level_frame_claimed1, data.level_frame_claimed2), level_rect)
         else:
             pg.draw.rect(window.dis, blend(data.level_frame_unclaimed1, data.level_frame_unclaimed2), level_rect)
 
-    elif current_screen in [1, 2]:
+    elif 1 <= current_screen <= 3:
         offset = (window.size[0] * .5 - player_pos[0] * data.level_grid,
                   window.size[1] * .5 - player_pos[1] * data.level_grid)
         data.offset = offset
@@ -152,13 +160,14 @@ def handle_render():
             if not award in data.awards_collected: pg.draw.ellipse(window.dis, blend(data.level_award_color1, data.level_award_color2), block_rect(award), data.level_grid_frame)
         trans_rect(window.dis, (*blend(data.level_exit_color1, data.level_exit_color2), 200), block_rect(current_level.ending_platform))
 
-        if current_screen == 2 and level_blind <= 255:
+        if 2 <= current_screen <= 3 and level_blind <= 255:
             trans_rect(window.dis, (*level_color, level_blind), (0, 0, *window.size))
             level_blind += 5
         elif level_blind > 0:
             trans_rect(window.dis, (*level_color, level_blind), (0,0,*window.size))
             level_blind -= 5
-        if current_screen == 2 and level_blind >= 255:
+        if 2 <= current_screen <= 3 and level_blind >= 255:
+            quit_level = current_screen == 3
             current_screen = 0
             level_blind = 255
             enter_level = False
@@ -171,9 +180,17 @@ def handle_render():
         object.render()
         halt = halt or object.halt
     halt = halt or current_screen == 2
+    halt = halt or current_screen == 3
 
     if current_screen == 1 and not halt:
-        trans_rect(window.dis, (*blend(data.player_color1, data.player_color2), 200), block_rect(player_pos))
+        player_rect = block_rect(player_pos)
+        trans_rect(window.dis, (*blend(data.player_color1, data.player_color2), 200), (
+            player_rect[0] + max(0, data.force[0]) * data.level_grid * .25 * data.movement_time,
+            player_rect[1] + max(0, data.force[1]) * data.level_grid * .25 * data.movement_time,
+            player_rect[2] + min(0, data.force[0]) * data.level_grid * .25 * data.movement_time - max(0, data.force[0]) * data.level_grid * .25 * data.movement_time,
+            player_rect[3]  + min(0, data.force[1]) * data.level_grid * .25 * data.movement_time - max(0, data.force[1]) * data.level_grid * .25 * data.movement_time
+        ))
+        if data.debug: pg.draw.rect(window.dis, 'orange', player_rect, 2, 5)
 
     clock.tick(120)
     if data.debug and data.debug_level > 0:
