@@ -5,6 +5,8 @@ import threading
 
 engine.data.pre_init()
 engine.create_window()
+
+
 if engine.data.debug and os.path.exists('save.dat'): os.remove('save.dat')
 engine.game.load()
 

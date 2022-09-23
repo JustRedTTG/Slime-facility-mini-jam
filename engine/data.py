@@ -3,7 +3,7 @@ import pygame
 version = "1.0.2"
 screenSize = (800, 600)
 title = "Slime facility"
-debug = False
+debug = 0
 debug_level = 0 # 1 will stop the color effects
 
 run = True # obviously don't touch this, LMAO
